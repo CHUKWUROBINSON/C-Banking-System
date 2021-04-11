@@ -34,7 +34,15 @@ infoNode* node = (infoNode*) malloc(sizeof(infoNode));
   
    return node;
 }
-
+void copyInfoNode(infoNode* dest,infoNode* src){
+  
+  dest->id = src->id;
+  strcpy(dest->data, src->data);
+  dest->timeStamp = dest->timeStamp;
+  strcpy(dest->formatedTimeStamp,src->formatedTimeStamp);
+  
+  
+}
 JSArray* enqueInfoNode(JSArray* list,infoNode* node){
   
   if(list->headPtr && list->tailPtr){
@@ -52,13 +60,13 @@ JSArray* enqueInfoNode(JSArray* list,infoNode* node){
 JSArray* pushInfoNode(JSArray* list,infoNode* node){
   
   
-  if(list->headPtr && list->tailPtr){
+  if(list->headPtr){
   node->nextPtr = list->headPtr;
-  list->headPtr->prevPtr = list->headPtr = node; 
+  node->nextPtr->prevPtr = list->headPtr = node;
+  return list;
   }
-  else{
     list->headPtr = list->tailPtr = node;
-  }
+  
    return list;
 }
 
@@ -67,12 +75,22 @@ void insertInfoNode(JSArray *list, infoNode *node, const int pos){
   int count = 0;
   if(pos < 0) return;
   
+
+  if(!current){
+    list->headPtr = list->tailPtr = node;
+    printf("\never true\n");
+    return;
+  }
   
   do{
     
-    if(!current){
-    list->headPtr = list->tailPtr = current;
-    return;
+    
+    if(!current && count ){
+      
+      list->tailPtr->nextPtr = node;
+      node->prevPtr = list->tailPtr;
+      list->tailPtr = node;
+      return;
     }
     
     if(count == pos){
@@ -80,21 +98,28 @@ void insertInfoNode(JSArray *list, infoNode *node, const int pos){
       node->nextPtr = current;
       node->prevPtr = current->prevPtr;
       current->prevPtr = node;
-      node->prevPtr->nextPtr = node;
-      return;
+      if(pos == 0){
+        
+        list->headPtr = node;
+        return;
+      }
+      node->prevPtr->nextPtr = node;    
+       return;
     }
-    ++count
+    ++count;
     current = current->nextPtr;
-  }while(1)
+  }while(1);
   
 }
 
 JSArray* popInfoNode(JSArray* list){
   infoNode* tempPtr;
+  printf("\n Me is here\n");
   if(!list->headPtr){
     return list;
   }
-  else if(list->headPtr == list->tailPtr){
+  if(list->headPtr == list->tailPtr){
+    printf("\nWere in here!\n");
     free(list->headPtr);
     list->headPtr = list->tailPtr = NULL;
     return list;
@@ -119,6 +144,55 @@ JSArray* dequeInfoNode(JSArray* list){
    list->tailPtr = tempPtr;
    
    return list;
+}
+
+void deinsertInfoNode(JSArray *list,const int pos){
+  infoNode *current = list->headPtr;
+  int count = 0;
+  
+  if(pos < 0) return;
+  if(list->headPtr == list->tailPtr){
+    list->headPtr = list->tailPtr = NULL;
+    free(current);
+    printf("\n freedee!!\n");
+    return;
+    
+  }
+  if(!pos){
+    
+    list->headPtr = list->headPtr->nextPtr;
+    free(current);
+    return;
+    
+  }
+
+  
+  do{
+    
+    if((!current && count) || ((pos == count) && (current == list->tailPtr))){
+      
+      list->tailPtr = list->tailPtr->prevPtr;
+      free(list->tailPtr->nextPtr);
+      list->tailPtr->nextPtr = NULL;
+      printf("\n free the last one \n");
+      return;
+    }
+    
+    
+    
+    if(pos == count){
+      printf("\n I am True\n");
+      current->nextPtr->prevPtr = current->prevPtr;
+      current->prevPtr->nextPtr = current->nextPtr;
+      
+      free(current);
+      
+      return;
+    }
+    ++count;
+    current = current->nextPtr;
+  }while(1);
+  
 }
 
 void timeStampToStr(time_t timeStamp, char* formatedTimeStamp){
@@ -159,15 +233,21 @@ infoNode* inputNode(){
 }
 
 void testList(){
-  int stop = 0;
+  /*int stop = 0;
   JSArray history;
   infoNode* node;
   history.headPtr = history.tailPtr = NULL;
   while(!stop){
     
+    //node = inputNode();
+     //enqueInfoNode(&history, node);
+     
+    //printf("\n The list so far\n\n");
+    //printList(&history);
+     
      node = inputNode();
     
-    insertInfoNode(&history, node);
+    pushInfoNode(&history, node);
     printf("\n The list so far\n\n");
     printList(&history);
     printf("stop? 1 for yes and 0  ");
@@ -175,4 +255,29 @@ void testList(){
     scanf("%d",&stop);
     cleanStd();
   }
+  printList(&history);
+  printf("\n-----------------\n");
+  popInfoNode(&history);
+  printList(&history);
+  
+  printf("\n------------------\n");
+  popInfoNode(&history);
+  printList(&history);
+
+printf("\n------------------\n");
+  
+  popInfoNode(&history);
+  printList(&history);
+  */
+  infoNode* node = inputNode();
+  printf("\n The first node is \n");
+  printInfoNode(node);
+  
+  infoNode* node1 = inputNode();
+  printf("\n the second Node is \n");
+  printInfoNode(node1);
+  printf("\n------------------\n");
+  printf("after copying node to node1\n");
+  copyInfoNode(node1,node);
+  printInfoNode(node);
 }
