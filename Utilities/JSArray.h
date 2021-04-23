@@ -354,7 +354,7 @@ infoNode* inputNode(){
   printf("\n input data: ");
   
   fgets(msg, INFO_STRINGLENGTH,stdin);
-  msg[strcspn(msg,"\n")] = '\0';
+  msg[strcspn(msg,"\n")] = '\0'; //remove new line character
   if((strlen(msg) + 1) < INFO_STRINGLENGTH) ungetc('\n', stdin); //if stdin is empty, add '\n' to stdin buffer
   cleanStdin();
   srand(time(NULL));
